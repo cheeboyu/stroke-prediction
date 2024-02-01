@@ -82,8 +82,8 @@
             <p class="text-muted"><b>A stroke occurs when the blood supply to part of your brain is interrupted or
                 reduced, preventing brain tissue from getting oxygen and nutrients. Brain cells begin to die in minutes.</b>
             </p>
-            <!-- Display prediction text (if any) -->
-            <p class="text-danger"><b>{{prediction_text}}</b></p>
+           <!-- Display prediction text (if any) -->
+            <p class="text-danger" id="predictionText"><b>{{prediction_text}}</b></p>
         </div>
 
         <!-- Form container with various input fields -->
@@ -259,7 +259,24 @@
     <script>
         // Custom JavaScript function for form validation
         function validateForm() {
-            return true; // Return true to submit the form, or false to prevent submission
+            // Your form validation logic here
+
+            // Assuming you have a variable named predictionResult containing the prediction text
+            var predictionResult = "The prediction result is...";
+
+            // Update the prediction text element
+            updatePredictionText(predictionResult);
+
+            // Return true to submit the form, or false to prevent submission
+            return true;
+        }
+
+        // Function to update prediction text
+        function updatePredictionText(predictionResult) {
+            var predictionTextElement = document.getElementById("predictionText");
+            if (predictionTextElement) {
+                predictionTextElement.innerHTML = "<b>" + predictionResult + "</b>";
+            }
         }
     </script>
 </body>
