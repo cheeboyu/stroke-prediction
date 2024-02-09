@@ -4,10 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sentiment Analysis Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+
+        .positive {
+            color: green;
+        }
+
+        .neutral {
+            color: black;
+        }
+
+        .negative {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <h1>Sentiment Analysis Result</h1>
-    <p><strong>Text Input:</strong> {{ text }}</p>
-    <p><strong>Sentiment:</strong> {{ sentiment }}</p>
+    <div class="container">
+        <p><strong>Text Input:</strong> {{ text }}</p>
+        <p><strong>Sentiment:</strong> 
+            {% if sentiment == 'Positive' %}
+                <strong><span class="positive">{{ sentiment }}</span></strong>
+            {% elif sentiment == 'Negative' %}
+                <strong><span class="negative">{{ sentiment }}</span></strong>
+            {% else %}
+                <strong><span class="neutral">{{ sentiment }}</span></strong>
+            {% endif %}
+        </p>
+    </div>
 </body>
 </html>

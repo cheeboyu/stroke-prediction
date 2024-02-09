@@ -10,7 +10,6 @@ from textblob import TextBlob
 warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 
 # Load the trained model and scaler
-model = pickle.load(open("boyu_ada.pkl", 'rb'))
 training_data = pd.read_csv('cleaned_stroke_prediction.csv')
 
 # Extract relevant features for fitting the scaler
@@ -151,11 +150,11 @@ def sentiment_analysis():
         sentiment_score = blob.sentiment.polarity
 
         if sentiment_score > 0:
-            sentiment = 'positive'
+            sentiment = 'Positive'
         elif sentiment_score < 0:
-            sentiment = 'negative'
+            sentiment = 'Negative'
         else:
-            sentiment = 'neutral'
+            sentiment = 'Neutral'
 
         return render_template('sentiment_analysis.html', text=text, sentiment=sentiment)
     except Exception as e:
