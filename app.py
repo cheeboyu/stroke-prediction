@@ -2,8 +2,9 @@
 from flask import Flask, render_template, request
 import pickle
 import pandas as pd
-from sklearn.preprocessing import StandardScaler  # Import StandardScaler
+from sklearn.preprocessing import StandardScaler
 import warnings
+from textblob import TextBlob
 
 # Suppress scikit-learn warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
@@ -13,7 +14,6 @@ model = pickle.load(open("boyu_ada.pkl", 'rb'))
 training_data = pd.read_csv('cleaned_stroke_prediction.csv')
 
 # Extract relevant features for fitting the scaler
-# Adjust column names based on your training data
 fit_data = training_data[['Age', 'Hypertension', 'Heart Disease', 'Average Glucose Level', 'Body Mass Index (BMI)',
                           'Stroke History', 'Stress Levels', 'Systolic_BP', 'Diastolic_BP', 'HDL', 'LDL',
                           'Gender_Female', 'Gender_Male', 'Smoking Status_Currently Smokes', 'Smoking Status_Formerly Smoked',
@@ -30,6 +30,9 @@ scaler.fit(fit_data)
 
 # Create a Flask application instance
 app = Flask(__name__)
+
+# Function to preprocess input data
+
 
 def preprocess_input(age, hypertension, heart_disease, average_glucose_level, bmi,
                      stroke_history, stress_levels, systolic_bp, diastolic_bp, hdl, ldl,
@@ -80,33 +83,24 @@ def preprocess_input(age, hypertension, heart_disease, average_glucose_level, bm
     # Create a DataFrame with the correct column names and a single row of data
     features_df = pd.DataFrame([features_dict], columns=feature_names)
 
-    # Return features and feature names as a tuple
-    return features_df, feature_names
+    # Return features DataFrame
+    return features_df
 
-def predict_stroke(features, threshold=0.5):
-    print(f"Number of Columns in Features: {features.shape[1]}")
+# Function to make stroke prediction
 
-    # Get the number of features expected by the AdaBoost model
-    num_features_expected = model.estimators_[0].tree_.n_features
 
-    print(f"Number of Features Expected by Model: {num_features_expected}")
-
+def predict_stroke(features):
     # Scale the input features using the scaler
-    scaled_features = scaler.transform(features.values)  # Use .values to get NumPy array
+    scaled_features = scaler.transform(features)
 
     # Make predictions using the trained model
     prediction_proba = model.predict_proba(scaled_features)
-    binary_prediction = (prediction_proba[:, 1] >= threshold).astype(int)
 
-    print(f"Scaled Features Shape: {scaled_features.shape}")
-    print(f"Scaled Features: {scaled_features}")
-    print(f"Prediction Probabilities Shape: {prediction_proba.shape}")
-    print(f"Prediction Probabilities: {prediction_proba}")
-    print(f"Binary Predictions: {binary_prediction}")
-
-    return prediction_proba[:, 1]
+    return prediction_proba[:, 1]  # Return the probability of stroke
 
 # Main route for the home page with form submission handling
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == "POST":
@@ -123,22 +117,22 @@ def home():
             dietary_habits = request.form['dietary_habits']
 
             # Call preprocess_input function
-            preprocessed_data, _ = preprocess_input(*numerical_features, gender, smoking_status, alcohol_intake,
-                                                    physical_activity, family_history_of_stroke, dietary_habits)
-            features = preprocessed_data  # Use the entire DataFrame for prediction
+            preprocessed_data = preprocess_input(*numerical_features, gender, smoking_status, alcohol_intake,
+                                                 physical_activity, family_history_of_stroke, dietary_habits)
 
-            # Make predictions using the trained model with a custom threshold (e.g., 0.5)
-            prediction_proba = predict_stroke(features)
+            # Make predictions using the trained model
+            prediction_proba = predict_stroke(preprocessed_data)
 
             # Determine class label
             binary_prediction = 1 if prediction_proba[0] >= 0.5 else 0
 
             # Determine class labels
-            class_labels = ['NO', 'YES']  # Assuming class 0 is 'NO' and class 1 is 'YES'
+            # Assuming class 0 is 'NO' and class 1 is 'YES'
+            class_labels = ['NO', 'YES']
 
             # Render the prediction result on the home page
             prediction_text = f"Chance of Stroke Prediction: {prediction_proba[0]:.2%} ({class_labels[binary_prediction]})"
-            return render_template("index.html", prediction_text=prediction_text, prediction_proba=prediction_proba)
+            return render_template("index.html", prediction_text=prediction_text)
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")  # Print the error details
@@ -147,6 +141,29 @@ def home():
     else:
         # Render the home page with the form
         return render_template("index.html")
+
+
+@app.route('/sentiment_analysis', methods=['POST'])
+def sentiment_analysis():
+    try:
+        text = request.form['text_input']
+        blob = TextBlob(text)
+        sentiment_score = blob.sentiment.polarity
+
+        if sentiment_score > 0:
+            sentiment = 'positive'
+        elif sentiment_score < 0:
+            sentiment = 'negative'
+        else:
+            sentiment = 'neutral'
+
+        return render_template('sentiment_analysis.html', text=text, sentiment=sentiment)
+    except Exception as e:
+        # Print the error for debugging
+        print(f"Error occurred during sentiment analysis: {str(e)}")
+        # Return an error message
+        return render_template('sentiment_analysis.html', text="Error occurred during sentiment analysis.", sentiment="error")
+
 
 # Run the Flask application
 if __name__ == "__main__":
