@@ -26,6 +26,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
         p {
@@ -47,6 +48,21 @@
         .negative {
             color: red;
         }
+
+        /* Button styling */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +78,9 @@
                 <strong><span class="neutral">{{ sentiment }}</span></strong>
             {% endif %}
         </p>
+
+        <!-- Button to go back to home page -->
+        <a href="{{ url_for('home') }}" class="btn btn-primary">Home</a>
     </div>
 </body>
 </html>

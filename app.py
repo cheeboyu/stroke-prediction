@@ -10,7 +10,7 @@ from textblob import TextBlob
 warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 
 # Load the trained model and scaler
-model = pickle.load(open("boyu_ada.pkl", 'rb'))
+# model = pickle.load(open("boyu_ada.pkl", 'rb'))
 
 # Load the trained model and scaler
 training_data = pd.read_csv('cleaned_stroke_prediction.csv')
